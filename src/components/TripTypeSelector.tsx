@@ -9,11 +9,11 @@ interface TripTypeSelectorProps {
 
 const TripTypeSelector: React.FC<TripTypeSelectorProps> = ({ selectedType, onSelectTripType }) => {
   return (
-    <div className="flex rounded-md bg-white p-1 shadow-sm border border-gray-100">
+    <div className="flex rounded-md bg-white p-1 shadow-sm border border-gray-200">
       <button
         onClick={() => onSelectTripType('roundTrip')}
         className={cn(
-          "flex-1 py-2 px-4 text-sm font-medium rounded-l-md transition-colors",
+          "flex-1 py-2.5 px-4 text-sm font-medium rounded-l-md transition-colors",
           selectedType === 'roundTrip' 
             ? "bg-flight-blue text-white" 
             : "text-gray-700 hover:text-flight-blue"
@@ -24,7 +24,7 @@ const TripTypeSelector: React.FC<TripTypeSelectorProps> = ({ selectedType, onSel
       <button
         onClick={() => onSelectTripType('oneWay')}
         className={cn(
-          "flex-1 py-2 px-4 text-sm font-medium rounded-r-md transition-colors",
+          "flex-1 py-2.5 px-4 text-sm font-medium rounded-r-md transition-colors",
           selectedType === 'oneWay' 
             ? "bg-flight-blue text-white" 
             : "text-gray-700 hover:text-flight-blue"
