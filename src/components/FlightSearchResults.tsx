@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Plane, Clock, ArrowRight, Filter } from 'lucide-react';
 import { Flight, FlightSearchParams, destinations } from '@/services/flightApi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface FlightSearchResultsProps {
   flights: Flight[];
@@ -61,13 +62,23 @@ const FlightSearchResults: React.FC<FlightSearchResultsProps> = ({ flights, sear
     return a.departureTime.localeCompare(b.departureTime);
   });
 
+  // Function to get airline code from name
+  const getAirlineCode = (name: string): string => {
+    // Extract first letter of each word
+    const words = name.split(' ');
+    if (words.length === 1) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+    return words.map(word => word[0]).join('').toUpperCase();
+  };
+
   return (
     <div className="mt-8 animate-fade-in">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Flight Results</h2>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-flight-blue border-flight-blue">
-            {tripType === 'oneWay' ? 'One Way' : 'Round Trip'}
+            {tripType === 'oneWay' ? 'One Way' : (tripType === 'roundTrip' ? 'Round Trip' : 'Multi City')}
           </Badge>
           <Badge variant="outline" className="bg-flight-blue-light text-flight-blue border-0">
             {filteredFlights.length} flights found
@@ -141,14 +152,16 @@ const FlightSearchResults: React.FC<FlightSearchResultsProps> = ({ flights, sear
                   <div className="p-4 md:p-6 flex items-center border-b md:border-b-0 md:border-r border-gray-100">
                     <div className="flex items-center">
                       <div className="h-10 w-16 flex items-center justify-center">
-                        <img 
-                          src={flight.airlineLogo} 
-                          alt={flight.airline} 
-                          className="h-8 object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/50x30?text=Airline';
-                          }}
-                        />
+                        <Avatar className="h-8 w-8 bg-flight-blue/10">
+                          <AvatarImage 
+                            src={flight.airlineLogo} 
+                            alt={flight.airline}
+                            className="object-contain p-0.5"
+                          />
+                          <AvatarFallback className="text-flight-blue font-medium text-xs">
+                            {getAirlineCode(flight.airline)}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
                       <div className="ml-3">
                         <p className="font-medium text-sm">{flight.airline}</p>
