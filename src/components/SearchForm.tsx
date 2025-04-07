@@ -16,7 +16,8 @@ interface SearchFormProps {
 }
 
 const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading = false }) => {
-  const [tripType, setTripType] = useState<'oneWay' | 'roundTrip'>('roundTrip');
+  // Update the type definition to include 'multiCity'
+  const [tripType, setTripType] = useState<'oneWay' | 'roundTrip' | 'multiCity'>('roundTrip');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [fromQuery, setFromQuery] = useState('');
