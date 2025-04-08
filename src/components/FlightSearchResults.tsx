@@ -7,6 +7,8 @@ import { Plane, Clock, ArrowRight, Filter } from 'lucide-react';
 import { Flight, FlightSearchParams, destinations } from '@/services/flightApi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import BookingDialog from './BookingDialog';
 
 interface FlightSearchResultsProps {
   flights: Flight[];
@@ -18,6 +20,8 @@ const FlightSearchResults: React.FC<FlightSearchResultsProps> = ({ flights, sear
   const { tripType, from, to, departureDate, returnDate, passengers } = searchParams;
   const [sortBy, setSortBy] = useState<'price' | 'duration' | 'departure'>('price');
   const [filterStops, setFilterStops] = useState<'all' | 'direct' | 'oneStop'>('all');
+  const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   
   const getDestinationName = (code: string) => {
     const destination = destinations.find(d => d.code === code);
@@ -70,6 +74,17 @@ const FlightSearchResults: React.FC<FlightSearchResultsProps> = ({ flights, sear
       return words[0].substring(0, 2).toUpperCase();
     }
     return words.map(word => word[0]).join('').toUpperCase();
+  };
+
+  const handleFlightSelect = (flight: Flight) => {
+    setSelectedFlight(flight);
+    setIsBookingOpen(true);
+  };
+
+  const handleCloseBooking = () => {
+    setIsBookingOpen(false);
+    // Reset selected flight after a delay to avoid UI flicker
+    setTimeout(() => setSelectedFlight(null), 300);
   };
 
   return (
@@ -207,9 +222,12 @@ const FlightSearchResults: React.FC<FlightSearchResultsProps> = ({ flights, sear
                       <p className="text-xs text-gray-500">Total: ${flight.price * passengers}</p>
                     </div>
                     
-                    <button className="md:w-full px-4 py-2 text-white bg-flight-orange rounded-md hover:bg-orange-600 transition-colors text-sm font-medium">
+                    <Button 
+                      onClick={() => handleFlightSelect(flight)} 
+                      className="md:w-full px-4 py-2 text-white bg-flight-orange hover:bg-orange-600 transition-colors text-sm font-medium"
+                    >
                       Select
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -217,6 +235,13 @@ const FlightSearchResults: React.FC<FlightSearchResultsProps> = ({ flights, sear
           ))}
         </div>
       )}
+      
+      <BookingDialog
+        flight={selectedFlight}
+        open={isBookingOpen}
+        onClose={handleCloseBooking}
+        passengers={passengers}
+      />
     </div>
   );
 };
