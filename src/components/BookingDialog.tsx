@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Flight } from '@/services/flightApi';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatSelection from './SeatSelection';
 import PassengerForm, { PassengerFormValues } from './PassengerForm';
+import AncillaryServices from './AncillaryServices';
 import { ArrowRight, Check } from 'lucide-react';
 
 interface BookingDialogProps {
@@ -21,8 +21,9 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   passengers,
   onClose,
 }) => {
-  const [currentStep, setCurrentStep] = useState<'seat' | 'info' | 'payment' | 'confirmation'>('seat');
+  const [currentStep, setCurrentStep] = useState<'seat' | 'services' | 'info' | 'payment' | 'confirmation'>('seat');
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [passengerInfo, setPassengerInfo] = useState<PassengerFormValues[]>([]);
 
   const handleSeatSelect = (seat: string) => {
@@ -35,6 +36,10 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     }
   };
 
+  const handleServicesSelect = (services: string[]) => {
+    setSelectedServices(services);
+  };
+
   const handlePassengerInfoSubmit = (data: PassengerFormValues) => {
     const newPassengerInfo = [...passengerInfo];
     newPassengerInfo[0] = data;
@@ -45,6 +50,31 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   const handlePayment = () => {
     // In a real app, payment processing would happen here
     setCurrentStep('confirmation');
+  };
+
+  // Calculate total cost including flight price, taxes, and selected services
+  const calculateTotalCost = () => {
+    const baseFare = flight?.price || 0;
+    const taxes = Math.round(baseFare * 0.2);
+    
+    // Service prices (in a real app, these would come from an API/database)
+    const servicePrices: Record<string, number> = {
+      extraBaggage: 35,
+      priorityBoarding: 15,
+      meal: 22,
+      wifi: 12,
+      beverages: 10
+    };
+    
+    const servicesTotal = selectedServices.reduce((total, serviceId) => 
+      total + (servicePrices[serviceId] || 0), 0);
+    
+    return {
+      baseFare,
+      taxes,
+      servicesTotal,
+      total: baseFare + taxes + servicesTotal
+    };
   };
 
   const renderContent = () => {
@@ -82,6 +112,34 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
             </div>
           </>
         );
+      case 'services':
+        return (
+          <>
+            <div className="mb-6 pb-6 border-b">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight & Seat</h3>
+                  <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm text-gray-600">{flight?.airline}</span>
+                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                      {flight?.departureTime} - {flight?.arrivalTime}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="px-3 py-1.5 bg-flight-blue-light text-flight-blue rounded text-sm font-medium">
+                    Seat {selectedSeats[0]}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <AncillaryServices 
+              onServicesSelect={handleServicesSelect}
+              selectedServices={selectedServices}
+            />
+          </>
+        );
       case 'info':
         return (
           <>
@@ -109,6 +167,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
           </>
         );
       case 'payment':
+        const costDetails = calculateTotalCost();
         return (
           <>
             <div className="mb-6 pb-6 border-b">
@@ -130,20 +189,46 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                 <p>Seat: {selectedSeats[0]}</p>
               </div>
               
+              {selectedServices.length > 0 && (
+                <div className="bg-gray-50 p-4 rounded">
+                  <h4 className="font-medium mb-2">Selected Services</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {selectedServices.map(serviceId => {
+                      const serviceNames: Record<string, string> = {
+                        extraBaggage: 'Extra Baggage',
+                        priorityBoarding: 'Priority Boarding',
+                        meal: 'In-flight Meal',
+                        wifi: 'In-flight WiFi',
+                        beverages: 'Premium Beverages',
+                      };
+                      return (
+                        <li key={serviceId}>{serviceNames[serviceId]}</li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+              
               <div className="bg-gray-50 p-4 rounded">
                 <h4 className="font-medium mb-2">Price Details</h4>
                 <div className="flex justify-between mb-1">
                   <span>Base fare</span>
-                  <span>${flight?.price}</span>
+                  <span>${costDetails.baseFare}</span>
                 </div>
                 <div className="flex justify-between mb-1">
                   <span>Taxes & fees</span>
-                  <span>${Math.round(flight?.price * 0.2)}</span>
+                  <span>${costDetails.taxes}</span>
                 </div>
+                {costDetails.servicesTotal > 0 && (
+                  <div className="flex justify-between mb-1">
+                    <span>Additional services</span>
+                    <span>${costDetails.servicesTotal}</span>
+                  </div>
+                )}
                 <div className="border-t border-gray-300 my-2"></div>
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
-                  <span>${Math.round(flight?.price * 1.2)}</span>
+                  <span>${costDetails.total}</span>
                 </div>
               </div>
               
@@ -179,6 +264,21 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
               <p><span className="text-gray-500">Date:</span> {new Date().toLocaleDateString()}</p>
               <p><span className="text-gray-500">Passenger:</span> {passengerInfo[0]?.firstName} {passengerInfo[0]?.lastName}</p>
               <p><span className="text-gray-500">Seat:</span> {selectedSeats[0]}</p>
+              {selectedServices.length > 0 && (
+                <p>
+                  <span className="text-gray-500">Services:</span>{' '}
+                  {selectedServices.map(serviceId => {
+                    const serviceNames: Record<string, string> = {
+                      extraBaggage: 'Extra Baggage',
+                      priorityBoarding: 'Priority Boarding',
+                      meal: 'In-flight Meal',
+                      wifi: 'In-flight WiFi',
+                      beverages: 'Premium Beverages',
+                    };
+                    return serviceNames[serviceId];
+                  }).join(', ')}
+                </p>
+              )}
             </div>
             
             <Button onClick={onClose} className="w-full">
@@ -194,19 +294,33 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
       case 'seat':
         return (
           <Button 
-            onClick={() => setCurrentStep('info')} 
+            onClick={() => setCurrentStep('services')} 
             disabled={selectedSeats.length === 0}
             className="ml-auto"
           >
-            Continue to Passenger Info <ArrowRight className="ml-2 h-4 w-4" />
+            Continue to Additional Services <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
+        );
+      case 'services':
+        return (
+          <>
+            <Button 
+              variant="outline" 
+              onClick={() => setCurrentStep('seat')}
+            >
+              Back
+            </Button>
+            <Button onClick={() => setCurrentStep('info')}>
+              Continue to Passenger Info <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </>
         );
       case 'info':
         return (
           <>
             <Button 
               variant="outline" 
-              onClick={() => setCurrentStep('seat')}
+              onClick={() => setCurrentStep('services')}
             >
               Back
             </Button>
@@ -240,6 +354,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   const renderTitle = () => {
     switch (currentStep) {
       case 'seat': return 'Select Your Seat';
+      case 'services': return 'Additional Services';
       case 'info': return 'Passenger Information';
       case 'payment': return 'Payment';
       case 'confirmation': return 'Booking Confirmation';
@@ -258,7 +373,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
         {currentStep !== 'confirmation' && (
           <div className="mb-6">
             <div className="flex justify-between relative">
-              {['seat', 'info', 'payment', 'confirmation'].map((step, index) => (
+              {['seat', 'services', 'info', 'payment', 'confirmation'].map((step, index) => (
                 <div 
                   key={step} 
                   className="flex flex-col items-center relative z-10"
@@ -266,7 +381,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                   <div 
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs
                       ${currentStep === step ? 'bg-flight-blue text-white' : 
-                        ['seat', 'info', 'payment'].indexOf(currentStep) > ['seat', 'info', 'payment'].indexOf(step) 
+                        ['seat', 'services', 'info', 'payment'].indexOf(currentStep) > ['seat', 'services', 'info', 'payment'].indexOf(step) 
                           ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}`}
                   >
                     {index + 1}
@@ -281,11 +396,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                   style={{ 
                     width: currentStep === 'seat' 
                       ? '0%' 
-                      : currentStep === 'info' 
-                        ? '33%' 
-                        : currentStep === 'payment' 
-                          ? '66%' 
-                          : '100%' 
+                      : currentStep === 'services' 
+                        ? '25%' 
+                        : currentStep === 'info' 
+                          ? '50%' 
+                          : currentStep === 'payment'
+                            ? '75%'
+                            : '100%' 
                   }}
                 ></div>
               </div>
