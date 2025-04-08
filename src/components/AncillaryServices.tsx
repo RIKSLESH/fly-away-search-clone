@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Check, Coffee, Luggage, Utensils, Wifi } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Service {
   id: string;
@@ -70,56 +71,58 @@ const AncillaryServices: React.FC<AncillaryServicesProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold mb-4">Additional Services</h3>
-      <p className="text-gray-600 text-sm mb-4">
-        Enhance your journey with these optional services
-      </p>
+    <ScrollArea className="max-h-[60vh]">
+      <div className="space-y-6 pr-4">
+        <h3 className="text-lg font-semibold mb-4">Additional Services</h3>
+        <p className="text-gray-600 text-sm mb-4">
+          Enhance your journey with these optional services
+        </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {services.map((service) => {
-          const isSelected = selected.includes(service.id);
-          return (
-            <div
-              key={service.id}
-              className={cn(
-                "border rounded-lg p-4 cursor-pointer transition-all",
-                isSelected
-                  ? "border-flight-blue bg-flight-blue-light"
-                  : "border-gray-200 hover:border-flight-blue/50"
-              )}
-              onClick={() => handleServiceToggle(service.id)}
-            >
-              <div className="flex items-start gap-3">
-                <div className={cn(
-                  "p-2 rounded-full",
-                  isSelected ? "bg-flight-blue text-white" : "bg-gray-100 text-gray-600"
-                )}>
-                  {service.icon}
-                </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">{service.name}</h4>
-                    <span className="font-medium text-flight-blue">${service.price}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {services.map((service) => {
+            const isSelected = selected.includes(service.id);
+            return (
+              <div
+                key={service.id}
+                className={cn(
+                  "border rounded-lg p-4 cursor-pointer transition-all",
+                  isSelected
+                    ? "border-flight-blue bg-flight-blue-light"
+                    : "border-gray-200 hover:border-flight-blue/50"
+                )}
+                onClick={() => handleServiceToggle(service.id)}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={cn(
+                    "p-2 rounded-full",
+                    isSelected ? "bg-flight-blue text-white" : "bg-gray-100 text-gray-600"
+                  )}>
+                    {service.icon}
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">{service.description}</p>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">{service.name}</h4>
+                      <span className="font-medium text-flight-blue">${service.price}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">{service.description}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-        <div className="flex justify-between">
-          <span className="font-medium">Selected services total:</span>
-          <span className="font-medium">
-            ${services.filter(s => selected.includes(s.id))
-              .reduce((total, service) => total + service.price, 0)}
-          </span>
+        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="flex justify-between">
+            <span className="font-medium">Selected services total:</span>
+            <span className="font-medium">
+              ${services.filter(s => selected.includes(s.id))
+                .reduce((total, service) => total + service.price, 0)}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 };
 

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface SeatSelectionProps {
   className?: string;
@@ -117,9 +118,11 @@ const SeatSelection: React.FC<SeatSelectionProps> = ({
   return (
     <div className={cn("mt-4", className)}>
       <h3 className="text-lg font-semibold text-gray-800 mb-6">Select Your Seat</h3>
-      <div className="p-4 border border-gray-200 rounded-lg bg-white">
-        {generateSeats()}
-      </div>
+      <ScrollArea className="h-[60vh]">
+        <div className="p-4 border border-gray-200 rounded-lg bg-white">
+          {generateSeats()}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

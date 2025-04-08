@@ -7,6 +7,7 @@ import SeatSelection from './SeatSelection';
 import PassengerForm, { PassengerFormValues } from './PassengerForm';
 import AncillaryServices from './AncillaryServices';
 import { ArrowRight, Check } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface BookingDialogProps {
   flight: Flight | null;
@@ -162,91 +163,97 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                 </div>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-4">Passenger Information</h3>
-            <PassengerForm onSubmit={handlePassengerInfoSubmit} />
+            <ScrollArea className="max-h-[60vh]">
+              <div className="pr-4">
+                <h3 className="text-lg font-semibold mb-4">Passenger Information</h3>
+                <PassengerForm onSubmit={handlePassengerInfoSubmit} />
+              </div>
+            </ScrollArea>
           </>
         );
       case 'payment':
         const costDetails = calculateTotalCost();
         return (
-          <>
-            <div className="mb-6 pb-6 border-b">
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Booking Summary</h3>
-              <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-gray-600">{flight?.airline}</span>
-                <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                  {flight?.departureTime} - {flight?.arrivalTime}
-                </span>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded">
-                <h4 className="font-medium mb-2">Passenger Details</h4>
-                <p>Name: {passengerInfo[0]?.firstName} {passengerInfo[0]?.lastName}</p>
-                <p>Document: {passengerInfo[0]?.documentType} ({passengerInfo[0]?.documentNumber})</p>
-                <p>Seat: {selectedSeats[0]}</p>
+          <ScrollArea className="max-h-[60vh]">
+            <div className="pr-4">
+              <div className="mb-6 pb-6 border-b">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Booking Summary</h3>
+                <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm text-gray-600">{flight?.airline}</span>
+                  <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                    {flight?.departureTime} - {flight?.arrivalTime}
+                  </span>
+                </div>
               </div>
               
-              {selectedServices.length > 0 && (
+              <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded">
-                  <h4 className="font-medium mb-2">Selected Services</h4>
-                  <ul className="list-disc pl-5 space-y-1">
-                    {selectedServices.map(serviceId => {
-                      const serviceNames: Record<string, string> = {
-                        extraBaggage: 'Extra Baggage',
-                        priorityBoarding: 'Priority Boarding',
-                        meal: 'In-flight Meal',
-                        wifi: 'In-flight WiFi',
-                        beverages: 'Premium Beverages',
-                      };
-                      return (
-                        <li key={serviceId}>{serviceNames[serviceId]}</li>
-                      );
-                    })}
-                  </ul>
+                  <h4 className="font-medium mb-2">Passenger Details</h4>
+                  <p>Name: {passengerInfo[0]?.firstName} {passengerInfo[0]?.lastName}</p>
+                  <p>Document: {passengerInfo[0]?.documentType} ({passengerInfo[0]?.documentNumber})</p>
+                  <p>Seat: {selectedSeats[0]}</p>
                 </div>
-              )}
-              
-              <div className="bg-gray-50 p-4 rounded">
-                <h4 className="font-medium mb-2">Price Details</h4>
-                <div className="flex justify-between mb-1">
-                  <span>Base fare</span>
-                  <span>${costDetails.baseFare}</span>
-                </div>
-                <div className="flex justify-between mb-1">
-                  <span>Taxes & fees</span>
-                  <span>${costDetails.taxes}</span>
-                </div>
-                {costDetails.servicesTotal > 0 && (
-                  <div className="flex justify-between mb-1">
-                    <span>Additional services</span>
-                    <span>${costDetails.servicesTotal}</span>
+                
+                {selectedServices.length > 0 && (
+                  <div className="bg-gray-50 p-4 rounded">
+                    <h4 className="font-medium mb-2">Selected Services</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {selectedServices.map(serviceId => {
+                        const serviceNames: Record<string, string> = {
+                          extraBaggage: 'Extra Baggage',
+                          priorityBoarding: 'Priority Boarding',
+                          meal: 'In-flight Meal',
+                          wifi: 'In-flight WiFi',
+                          beverages: 'Premium Beverages',
+                        };
+                        return (
+                          <li key={serviceId}>{serviceNames[serviceId]}</li>
+                        );
+                      })}
+                    </ul>
                   </div>
                 )}
-                <div className="border-t border-gray-300 my-2"></div>
-                <div className="flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>${costDetails.total}</span>
-                </div>
-              </div>
-              
-              <div className="p-4 border border-gray-200 rounded">
-                <h4 className="font-medium mb-4">Payment Method</h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {['Visa', 'MasterCard', 'PayPal'].map((method) => (
-                    <div key={method} className="border border-gray-200 hover:border-flight-blue rounded p-3 text-center cursor-pointer">
-                      <span className="text-sm">{method}</span>
+                
+                <div className="bg-gray-50 p-4 rounded">
+                  <h4 className="font-medium mb-2">Price Details</h4>
+                  <div className="flex justify-between mb-1">
+                    <span>Base fare</span>
+                    <span>${costDetails.baseFare}</span>
+                  </div>
+                  <div className="flex justify-between mb-1">
+                    <span>Taxes & fees</span>
+                    <span>${costDetails.taxes}</span>
+                  </div>
+                  {costDetails.servicesTotal > 0 && (
+                    <div className="flex justify-between mb-1">
+                      <span>Additional services</span>
+                      <span>${costDetails.servicesTotal}</span>
                     </div>
-                  ))}
+                  )}
+                  <div className="border-t border-gray-300 my-2"></div>
+                  <div className="flex justify-between font-bold">
+                    <span>Total</span>
+                    <span>${costDetails.total}</span>
+                  </div>
                 </div>
-                <p className="mt-4 text-xs text-gray-500">
-                  Demo mode: No actual payment will be processed
-                </p>
+                
+                <div className="p-4 border border-gray-200 rounded">
+                  <h4 className="font-medium mb-4">Payment Method</h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Visa', 'MasterCard', 'PayPal'].map((method) => (
+                      <div key={method} className="border border-gray-200 hover:border-flight-blue rounded p-3 text-center cursor-pointer">
+                        <span className="text-sm">{method}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-xs text-gray-500">
+                    Demo mode: No actual payment will be processed
+                  </p>
+                </div>
               </div>
             </div>
-          </>
+          </ScrollArea>
         );
       case 'confirmation':
         return (
@@ -365,7 +372,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{renderTitle()}</DialogTitle>
         </DialogHeader>
