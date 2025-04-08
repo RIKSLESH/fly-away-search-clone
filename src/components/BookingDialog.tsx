@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Flight } from '@/services/flightApi';
@@ -26,6 +26,14 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [passengerInfo, setPassengerInfo] = useState<PassengerFormValues[]>([]);
+
+  // Effect to automatically move to services step when seat is selected
+  useEffect(() => {
+    if (selectedSeats.length === passengers) {
+      // Only auto-advance if all required seats are selected
+      setCurrentStep('services');
+    }
+  }, [selectedSeats, passengers]);
 
   const handleSeatSelect = (seat: string) => {
     if (selectedSeats.includes(seat)) {
