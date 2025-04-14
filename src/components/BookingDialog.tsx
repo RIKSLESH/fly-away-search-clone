@@ -5,8 +5,10 @@ import { Flight } from '@/services/flightApi';
 import SeatSelection from './SeatSelection';
 import PassengerForm, { PassengerFormValues } from './PassengerForm';
 import AncillaryServices from './AncillaryServices';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, CreditCard, PaypalLogo } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
 
 interface BookingDialogProps {
   flight: Flight | null;
@@ -25,6 +27,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [passengerInfo, setPassengerInfo] = useState<PassengerFormValues[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal'>('card');
+  const [cardDetails, setCardDetails] = useState({
+    number: '',
+    expiry: '',
+    cvc: '',
+    name: '',
+  });
 
   // Effect to automatically move to services step when seat is selected
   useEffect(() => {
@@ -57,7 +66,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
   const handlePayment = () => {
     // In a real app, payment processing would happen here
-    setCurrentStep('confirmation');
+    if (paymentMethod === 'card' && 
+        cardDetails.number && 
+        cardDetails.expiry && 
+        cardDetails.cvc && 
+        cardDetails.name) {
+      setCurrentStep('confirmation');
+    }
   };
 
   // Calculate total cost including flight price, taxes, and selected services
@@ -200,6 +215,103 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
               
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded">
+                  <h4 className="font-medium mb-4">Payment Method</h4>
+                  <RadioGroup
+                    value={paymentMethod}
+                    onValueChange={(value: 'card' | 'paypal') => setPaymentMethod(value)}
+                    className="grid grid-cols-2 gap-4"
+                  >
+                    <div className={`border rounded-lg p-4 cursor-pointer ${
+                      paymentMethod === 'card' ? 'border-flight-blue bg-flight-blue-light' : 'border-gray-200'
+                    }`}>
+                      <RadioGroupItem value="card" id="card" className="hidden" />
+                      <label htmlFor="card" className="cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-5 w-5" />
+                          <span className="font-medium">Credit Card</span>
+                        </div>
+                      </label>
+                    </div>
+                    <div className={`border rounded-lg p-4 cursor-pointer ${
+                      paymentMethod === 'paypal' ? 'border-flight-blue bg-flight-blue-light' : 'border-gray-200'
+                    }`}>
+                      <RadioGroupItem value="paypal" id="paypal" className="hidden" />
+                      <label htmlFor="paypal" className="cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <PaypalLogo className="h-5 w-5" />
+                          <span className="font-medium">PayPal</span>
+                        </div>
+                      </label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {paymentMethod === 'card' && (
+                  <div className="bg-gray-50 p-4 rounded">
+                    <h4 className="font-medium mb-4">Card Details</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 mb-1">
+                          Cardholder Name
+                        </label>
+                        <Input
+                          id="cardName"
+                          value={cardDetails.name}
+                          onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+                          placeholder="John Doe"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                          Card Number
+                        </label>
+                        <Input
+                          id="cardNumber"
+                          value={cardDetails.number}
+                          onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
+                          placeholder="1234 5678 9012 3456"
+                          maxLength={19}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="cardExpiry" className="block text-sm font-medium text-gray-700 mb-1">
+                            Expiry Date
+                          </label>
+                          <Input
+                            id="cardExpiry"
+                            value={cardDetails.expiry}
+                            onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                            placeholder="MM/YY"
+                            maxLength={5}
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="cardCVC" className="block text-sm font-medium text-gray-700 mb-1">
+                            CVC
+                          </label>
+                          <Input
+                            id="cardCVC"
+                            value={cardDetails.cvc}
+                            onChange={(e) => setCardDetails({ ...cardDetails, cvc: e.target.value })}
+                            placeholder="123"
+                            maxLength={3}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === 'paypal' && (
+                  <div className="bg-gray-50 p-4 rounded text-center">
+                    <p className="text-gray-600">
+                      You will be redirected to PayPal to complete your payment.
+                    </p>
+                  </div>
+                )}
+                
+                <div className="bg-gray-50 p-4 rounded">
                   <h4 className="font-medium mb-2">Passenger Details</h4>
                   <p>Name: {passengerInfo[0]?.firstName} {passengerInfo[0]?.lastName}</p>
                   <p>Document: {passengerInfo[0]?.documentType} ({passengerInfo[0]?.documentNumber})</p>
@@ -247,20 +359,6 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                     <span>Total</span>
                     <span>${costDetails.total}</span>
                   </div>
-                </div>
-                
-                <div className="p-4 border border-gray-200 rounded">
-                  <h4 className="font-medium mb-4">Payment Method</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['Visa', 'MasterCard', 'PayPal'].map((method) => (
-                      <div key={method} className="border border-gray-200 hover:border-flight-blue rounded p-3 text-center cursor-pointer">
-                        <span className="text-sm">{method}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-4 text-xs text-gray-500">
-                    Demo mode: No actual payment will be processed
-                  </p>
                 </div>
               </div>
             </div>
