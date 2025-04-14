@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -90,99 +89,103 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     switch (currentStep) {
       case 'seat':
         return (
-          <>
-            <div className="mb-6 pb-6 border-b">
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight</h3>
-              <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-gray-600">{flight?.airline}</span>
-                <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                  {flight?.departureTime} - {flight?.arrivalTime}
-                </span>
+          <ScrollArea className="h-[60vh]">
+            <div className="pr-4">
+              <div className="mb-6 pb-6 border-b">
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight</h3>
+                <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm text-gray-600">{flight?.airline}</span>
+                  <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                    {flight?.departureTime} - {flight?.arrivalTime}
+                  </span>
+                </div>
+              </div>
+              <SeatSelection 
+                onSeatSelect={handleSeatSelect}
+                selectedSeat={selectedSeats[0]}
+              />
+              <div className="mt-4">
+                <p className="text-sm text-gray-600">
+                  {selectedSeats.length} of {passengers} seats selected
+                </p>
+                {selectedSeats.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {selectedSeats.map(seat => (
+                      <span key={seat} className="px-2 py-1 bg-flight-blue-light text-flight-blue rounded text-xs font-medium">
+                        Seat {seat}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            <SeatSelection 
-              onSeatSelect={handleSeatSelect}
-              selectedSeat={selectedSeats[0]}
-            />
-            <div className="mt-4">
-              <p className="text-sm text-gray-600">
-                {selectedSeats.length} of {passengers} seats selected
-              </p>
-              {selectedSeats.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {selectedSeats.map(seat => (
-                    <span key={seat} className="px-2 py-1 bg-flight-blue-light text-flight-blue rounded text-xs font-medium">
-                      Seat {seat}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
+          </ScrollArea>
         );
       case 'services':
         return (
-          <>
-            <div className="mb-6 pb-6 border-b">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight & Seat</h3>
-                  <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-gray-600">{flight?.airline}</span>
-                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                      {flight?.departureTime} - {flight?.arrivalTime}
+          <ScrollArea className="h-[60vh]">
+            <div className="pr-4">
+              <div className="mb-6 pb-6 border-b">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight & Seat</h3>
+                    <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-gray-600">{flight?.airline}</span>
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                        {flight?.departureTime} - {flight?.arrivalTime}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="px-3 py-1.5 bg-flight-blue-light text-flight-blue rounded text-sm font-medium">
+                      Seat {selectedSeats[0]}
                     </span>
                   </div>
                 </div>
-                <div>
-                  <span className="px-3 py-1.5 bg-flight-blue-light text-flight-blue rounded text-sm font-medium">
-                    Seat {selectedSeats[0]}
-                  </span>
-                </div>
               </div>
+              <AncillaryServices 
+                onServicesSelect={handleServicesSelect}
+                selectedServices={selectedServices}
+              />
             </div>
-            <AncillaryServices 
-              onServicesSelect={handleServicesSelect}
-              selectedServices={selectedServices}
-            />
-          </>
+          </ScrollArea>
         );
       case 'info':
         return (
-          <>
-            <div className="mb-6 pb-6 border-b">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight & Seat</h3>
-                  <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-gray-600">{flight?.airline}</span>
-                    <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                      {flight?.departureTime} - {flight?.arrivalTime}
+          <ScrollArea className="h-[60vh]">
+            <div className="pr-4">
+              <div className="mb-6 pb-6 border-b">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Selected Flight & Seat</h3>
+                    <p className="text-lg font-semibold">{flight?.from} → {flight?.to}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-gray-600">{flight?.airline}</span>
+                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded">
+                        {flight?.departureTime} - {flight?.arrivalTime}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="px-3 py-1.5 bg-flight-blue-light text-flight-blue rounded text-sm font-medium">
+                      Seat {selectedSeats[0]}
                     </span>
                   </div>
                 </div>
-                <div>
-                  <span className="px-3 py-1.5 bg-flight-blue-light text-flight-blue rounded text-sm font-medium">
-                    Seat {selectedSeats[0]}
-                  </span>
-                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Passenger Information</h3>
+                <PassengerForm id="passenger-form" onSubmit={handlePassengerInfoSubmit} />
               </div>
             </div>
-            <ScrollArea className="max-h-[60vh]">
-              <div className="pr-4">
-                <h3 className="text-lg font-semibold mb-4">Passenger Information</h3>
-                <PassengerForm onSubmit={handlePassengerInfoSubmit} />
-              </div>
-            </ScrollArea>
-          </>
+          </ScrollArea>
         );
       case 'payment':
         const costDetails = calculateTotalCost();
         return (
-          <ScrollArea className="max-h-[60vh]">
+          <ScrollArea className="h-[60vh]">
             <div className="pr-4">
               <div className="mb-6 pb-6 border-b">
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Booking Summary</h3>

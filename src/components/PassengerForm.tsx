@@ -22,9 +22,10 @@ export type PassengerFormValues = z.infer<typeof passengerSchema>;
 interface PassengerFormProps {
   onSubmit: (data: PassengerFormValues) => void;
   defaultValues?: Partial<PassengerFormValues>;
+  id?: string;
 }
 
-const PassengerForm: React.FC<PassengerFormProps> = ({ onSubmit, defaultValues }) => {
+const PassengerForm: React.FC<PassengerFormProps> = ({ onSubmit, defaultValues, id = 'passenger-form' }) => {
   const form = useForm<PassengerFormValues>({
     resolver: zodResolver(passengerSchema),
     defaultValues: {
@@ -39,7 +40,7 @@ const PassengerForm: React.FC<PassengerFormProps> = ({ onSubmit, defaultValues }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form id={id} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
