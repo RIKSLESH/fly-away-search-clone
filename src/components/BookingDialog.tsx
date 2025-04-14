@@ -5,7 +5,7 @@ import { Flight } from '@/services/flightApi';
 import SeatSelection from './SeatSelection';
 import PassengerForm, { PassengerFormValues } from './PassengerForm';
 import AncillaryServices from './AncillaryServices';
-import { ArrowRight, Check, CreditCard, PaypalLogo } from 'lucide-react';
+import { ArrowRight, Check, CreditCard, CreditCard as PaypalIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
@@ -35,10 +35,8 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     name: '',
   });
 
-  // Effect to automatically move to services step when seat is selected
   useEffect(() => {
     if (selectedSeats.length === passengers) {
-      // Only auto-advance if all required seats are selected
       setCurrentStep('services');
     }
   }, [selectedSeats, passengers]);
@@ -65,7 +63,6 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   };
 
   const handlePayment = () => {
-    // In a real app, payment processing would happen here
     if (paymentMethod === 'card' && 
         cardDetails.number && 
         cardDetails.expiry && 
@@ -75,12 +72,10 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     }
   };
 
-  // Calculate total cost including flight price, taxes, and selected services
   const calculateTotalCost = () => {
     const baseFare = flight?.price || 0;
     const taxes = Math.round(baseFare * 0.2);
     
-    // Service prices (in a real app, these would come from an API/database)
     const servicePrices: Record<string, number> = {
       extraBaggage: 35,
       priorityBoarding: 15,
@@ -238,7 +233,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
                       <RadioGroupItem value="paypal" id="paypal" className="hidden" />
                       <label htmlFor="paypal" className="cursor-pointer">
                         <div className="flex items-center gap-2">
-                          <PaypalLogo className="h-5 w-5" />
+                          <PaypalIcon className="h-5 w-5" />
                           <span className="font-medium">PayPal</span>
                         </div>
                       </label>
